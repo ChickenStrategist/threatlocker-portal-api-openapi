@@ -1,0 +1,1027 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ThreatLocker Portal API",
+    "version": "v1.0.0",
+    "description": "ThreatLocker Zero Trust Endpoint Protection Platform API for managing application control, ringfencing, network control, storage control, and endpoint security policies. This API enables automation of policy management, approval workflows, audit log retrieval, and comprehensive security reporting.",
+    "contact": {
+      "name": "ThreatLocker Support",
+      "url": "https://threatlocker.kb.help/api-users/"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://portalapi.b.threatlocker.com",
+      "description": "ThreatLocker Portal API (Region B)"
+    },
+    {
+      "url": "https://api.g.threatlocker.com",
+      "description": "ThreatLocker API (Region G)"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "API Key authentication. Format: 'Bearer {your-api-key}'"
+      }
+    },
+    "schemas": {
+      "ActionLogParameters": {
+        "type": "object",
+        "properties": {
+          "ActionType": {
+            "type": "integer",
+            "description": "Action type filter: None=0, BaseLine=1, Configuration=2, Delete=3, Elevation=4, EndPointManagerDeny=5, LearningMode=6, NetworkControlDeny=7, PolicyCreation=8, PolicyUpdate=9, ProcessBlocked=10, Ringfencing=11, StorageControlDeny=12, UnifiedAuditingDeny=13"
+          },
+          "StartDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start date for log retrieval"
+          },
+          "EndDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End date for log retrieval"
+          },
+          "HostName": {
+            "type": "string",
+            "description": "Filter by computer hostname"
+          },
+          "UserName": {
+            "type": "string",
+            "description": "Filter by username"
+          },
+          "ApplicationName": {
+            "type": "string",
+            "description": "Filter by application name"
+          },
+          "PageNumber": {
+            "type": "integer",
+            "description": "Page number for pagination"
+          },
+          "PageSize": {
+            "type": "integer",
+            "description": "Number of records per page"
+          }
+        }
+      },
+      "ActionLogEntry": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ActionType": {
+            "type": "string"
+          },
+          "ComputerName": {
+            "type": "string"
+          },
+          "UserName": {
+            "type": "string"
+          },
+          "ApplicationName": {
+            "type": "string"
+          },
+          "ApplicationPath": {
+            "type": "string"
+          },
+          "Result": {
+            "type": "string"
+          },
+          "Details": {
+            "type": "string"
+          }
+        }
+      },
+      "Computer": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "HostName": {
+            "type": "string"
+          },
+          "LastSeen": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "OperatingSystem": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "string",
+            "enum": ["Online", "Offline", "Protected", "Unprotected"]
+          },
+          "AgentVersion": {
+            "type": "string"
+          },
+          "OrganizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Groups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ComputerGroup": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Description": {
+            "type": "string"
+          },
+          "OrganizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ComputerCount": {
+            "type": "integer"
+          },
+          "Policies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Application": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Path": {
+            "type": "string"
+          },
+          "Hash": {
+            "type": "string"
+          },
+          "Publisher": {
+            "type": "string"
+          },
+          "Version": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "string",
+            "enum": ["Approved", "Denied", "Learning"]
+          }
+        }
+      },
+      "ApprovalRequest": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "RequestType": {
+            "type": "string",
+            "enum": ["Elevation", "Application", "Network"]
+          },
+          "Status": {
+            "type": "string",
+            "enum": ["Pending", "Approved", "Denied", "Expired"]
+          },
+          "ComputerName": {
+            "type": "string"
+          },
+          "UserName": {
+            "type": "string"
+          },
+          "ApplicationName": {
+            "type": "string"
+          },
+          "RequestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Policy": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Type": {
+            "type": "string",
+            "enum": ["ApplicationControl", "Ringfencing", "NetworkControl", "StorageControl", "ElevationControl"]
+          },
+          "Status": {
+            "type": "string",
+            "enum": ["Active", "Disabled", "Learning"]
+          },
+          "AssignedGroups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "Rules": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "MaintenanceMode": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ComputerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "StartTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "EndTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "Reason": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "string",
+            "enum": ["Scheduled", "Active", "Completed", "Cancelled"]
+          }
+        }
+      },
+      "Organization": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "string"
+          },
+          "LicenseCount": {
+            "type": "integer"
+          },
+          "UsedLicenses": {
+            "type": "integer"
+          }
+        }
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "ReportId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ReportType": {
+            "type": "string"
+          },
+          "GeneratedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "Format": {
+            "type": "string",
+            "enum": ["PDF", "CSV", "JSON"]
+          },
+          "DownloadUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "AuditLogEntry": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "User": {
+            "type": "string"
+          },
+          "Action": {
+            "type": "string"
+          },
+          "Resource": {
+            "type": "string"
+          },
+          "Details": {
+            "type": "string"
+          },
+          "IpAddress": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "ActionLog",
+      "description": "Operations for viewing and managing action logs including permit, deny, and baseline events"
+    },
+    {
+      "name": "Application",
+      "description": "Operations for managing applications and application definitions"
+    },
+    {
+      "name": "ApprovalRequest",
+      "description": "Operations for managing elevation and application approval requests"
+    },
+    {
+      "name": "Computer",
+      "description": "Operations for managing computers, devices, and agents"
+    },
+    {
+      "name": "ComputerGroup",
+      "description": "Operations for managing computer groups and policies"
+    },
+    {
+      "name": "MaintenanceMode",
+      "description": "Operations for scheduling and managing maintenance modes"
+    },
+    {
+      "name": "Organization",
+      "description": "Operations for managing organizations and authentication"
+    },
+    {
+      "name": "Policy",
+      "description": "Operations for managing security policies"
+    },
+    {
+      "name": "Report",
+      "description": "Operations for generating and retrieving reports"
+    },
+    {
+      "name": "SystemAudit",
+      "description": "Operations for viewing system audit logs"
+    }
+  ],
+  "paths": {
+    "/portalapi/ActionLog/ActionLogGetByParametersV2": {
+      "post": {
+        "tags": ["ActionLog"],
+        "summary": "Get Action Logs By Parameters",
+        "description": "Retrieve action logs with filtering by action type, date range, hostname, and other parameters.",
+        "operationId": "getActionLogsByParameters",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActionLogParameters"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response with action logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ActionLogEntry"
+                      }
+                    },
+                    "TotalRecords": {
+                      "type": "integer"
+                    },
+                    "PageNumber": {
+                      "type": "integer"
+                    },
+                    "PageSize": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid API key"
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/Computer/GetAll": {
+      "get": {
+        "tags": ["Computer"],
+        "summary": "Get All Computers",
+        "description": "Retrieve a list of all computers/endpoints managed by ThreatLocker",
+        "operationId": "getAllComputers",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "query",
+            "description": "Filter by organization ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by computer status",
+            "schema": {
+              "type": "string",
+              "enum": ["Online", "Offline", "Protected", "Unprotected"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with computer list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Computer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/Computer/GetById/{id}": {
+      "get": {
+        "tags": ["Computer"],
+        "summary": "Get Computer By ID",
+        "description": "Retrieve detailed information about a specific computer",
+        "operationId": "getComputerById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with computer details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Computer"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Computer not found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/ComputerGroup/GetAll": {
+      "get": {
+        "tags": ["ComputerGroup"],
+        "summary": "Get All Computer Groups",
+        "description": "Retrieve a list of all computer groups",
+        "operationId": "getAllComputerGroups",
+        "responses": {
+          "200": {
+            "description": "Successful response with computer groups",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ComputerGroup"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/Application/GetAll": {
+      "get": {
+        "tags": ["Application"],
+        "summary": "Get All Applications",
+        "description": "Retrieve a list of all applications tracked by ThreatLocker",
+        "operationId": "getAllApplications",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by application status",
+            "schema": {
+              "type": "string",
+              "enum": ["Approved", "Denied", "Learning"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with application list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Application"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/ApprovalRequest/GetPending": {
+      "get": {
+        "tags": ["ApprovalRequest"],
+        "summary": "Get Pending Approval Requests",
+        "description": "Retrieve all pending elevation and application approval requests",
+        "operationId": "getPendingApprovalRequests",
+        "parameters": [
+          {
+            "name": "requestType",
+            "in": "query",
+            "description": "Filter by request type",
+            "schema": {
+              "type": "string",
+              "enum": ["Elevation", "Application", "Network"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with pending requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApprovalRequest"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/ApprovalRequest/Approve/{id}": {
+      "post": {
+        "tags": ["ApprovalRequest"],
+        "summary": "Approve Request",
+        "description": "Approve a pending elevation or application request",
+        "operationId": "approveRequest",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Request ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Duration": {
+                    "type": "integer",
+                    "description": "Approval duration in minutes"
+                  },
+                  "Note": {
+                    "type": "string",
+                    "description": "Approval note"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request approved successfully"
+          },
+          "404": {
+            "description": "Request not found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/ApprovalRequest/Deny/{id}": {
+      "post": {
+        "tags": ["ApprovalRequest"],
+        "summary": "Deny Request",
+        "description": "Deny a pending elevation or application request",
+        "operationId": "denyRequest",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Request ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Reason": {
+                    "type": "string",
+                    "description": "Reason for denial"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request denied successfully"
+          },
+          "404": {
+            "description": "Request not found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/Policy/GetAll": {
+      "get": {
+        "tags": ["Policy"],
+        "summary": "Get All Policies",
+        "description": "Retrieve all security policies",
+        "operationId": "getAllPolicies",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by policy type",
+            "schema": {
+              "type": "string",
+              "enum": ["ApplicationControl", "Ringfencing", "NetworkControl", "StorageControl", "ElevationControl"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with policies",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Policy"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/MaintenanceMode/Schedule": {
+      "post": {
+        "tags": ["MaintenanceMode"],
+        "summary": "Schedule Maintenance Mode",
+        "description": "Schedule maintenance mode for a computer",
+        "operationId": "scheduleMaintenanceMode",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MaintenanceMode"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Maintenance mode scheduled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenanceMode"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/Organization/GetAll": {
+      "get": {
+        "tags": ["Organization"],
+        "summary": "Get All Organizations",
+        "description": "Retrieve all organizations accessible to the API user",
+        "operationId": "getAllOrganizations",
+        "responses": {
+          "200": {
+            "description": "Successful response with organizations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/Report/Generate": {
+      "post": {
+        "tags": ["Report"],
+        "summary": "Generate Report",
+        "description": "Generate a security or compliance report",
+        "operationId": "generateReport",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["ReportType", "Format"],
+                "properties": {
+                  "ReportType": {
+                    "type": "string",
+                    "enum": ["ActionLog", "ComplianceSummary", "ApplicationInventory", "PolicyAudit", "ElevationActivity"]
+                  },
+                  "Format": {
+                    "type": "string",
+                    "enum": ["PDF", "CSV", "JSON"]
+                  },
+                  "StartDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "EndDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "OrganizationId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Report generation initiated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/portalapi/SystemAudit/GetLogs": {
+      "get": {
+        "tags": ["SystemAudit"],
+        "summary": "Get System Audit Logs",
+        "description": "Retrieve system audit logs for portal activities",
+        "operationId": "getSystemAuditLogs",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Start date for audit log retrieval",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "End date for audit log retrieval",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "description": "Filter by user",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with audit logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditLogEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    }
+  }
+}
